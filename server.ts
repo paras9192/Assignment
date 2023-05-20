@@ -1,13 +1,29 @@
-import express from 'express';
+import express from "express";
+import config from "./configs/configuration";
+import bodyParser from "body-parser";
+import {flights} from "../assignmentBookingApp/src/flightDb/flight";
 
 const app = express();
+app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
-    res.send('Hello World!');
-    }
-);
+type GetFlightRequestBody = {
+    source: string;
+    destination: string;
+    date: string;
+};
+app.post("/flight", (req, res) => {
+    const requestBody = req.body as GetFlightRequestBody;
+    const {source, destination, date} = requestBody;
+    const filteredFlights = flights.filter((flight) => {
+        return flight.departure === source && flight.destination === destination && flight.date === date;
+    });
+    res.send(filteredFlights);
+});
 
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
-    }
-);
+app.get("/", (req, res) => {
+    res.send("Hello World!");
+});
+
+app.listen(config.PORT, () => {
+  console.log("Server is running on port 3000");
+});
